@@ -22,7 +22,7 @@ and get notified.
   - Desired length.
   - Desired list of input fields (all text).
   - Color.
-- No need to identify myself. This is an expressly single-user version now.
+- No user register flow. This is an expressly single-user version now.
 * Implementation
 Three pieces live in a monorepo.
 ** Frontend
