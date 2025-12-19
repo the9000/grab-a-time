@@ -1,0 +1,43 @@
+* Web frontend for Grab-A-Time
+See also [[file:~/personal/projects/grab-a-time/README.org][the entire project's README]].
+** Structure
+- Guest UI lives in ~guest.ts~.
+- My (owner's) UI lives in ~owner.ts~
+- Common utility stuff lives in ~common.ts~
+- Exportable types live in ~types.ts~
+** How to run
+TODO. The plan is to use ~bun~.
+** [0/7] Guest Features
+*** TODO Meeting type choice.
+*** TODO Date and time choice.
+*** TODO Create meeting with details.
+*** TODO Reschedule meeting page.
+*** TODO Cancel meeting page.
+*** TODO iCal file for import.
+*** TODO Email notification.
+** [0/10] Owner features
+*** TODO List meeting types.
+*** TODO Create meeting type.
+- [ ] Name.
+- [ ] Tag.
+- [ ] Fixed note.
+*** TODO Update meeting type.
+- [ ] Do not allow if future active meetings exist, or convert?
+*** TODO Delete meeting type.
+- [ ] Do not allow if future active meetings exist.
+*** TODO List schedules.
++ [ ] Indelible "Never" schedule.
++ [ ] List by update date.
++ [ ] "Edit" control.
++ [ ] "Delete" control.
+*** TODO Create a schedule.
+- [ ] Slot size: 10, 15, 20, 30 minutes.
+- [ ] Slot grid per day.
+- [ ] Copy.
+*** TODO Switch active schedule.
+- [ ] Do something with existing future meetings that end up in unavailable slots.
+*** TODO Update a schedule.
+- [ ] Do something with existing future meetings that end up in unavailable slots.
+*** TODO Delete a schedule.
+- [ ] Do not allow to delete the active schedule.
+- [ ] Do something with existing future meetings that end up in unavailable slots.

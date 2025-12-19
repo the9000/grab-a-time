@@ -1,0 +1,51 @@
+* Grab-A-Time: meeting scheduling
+Self-hosted to schedule meetings for myself, to replace the likes of calendly and cal.com.
+Created to save $12/mo, and to have a conversation piece about my skills during job interviews.
+
+There are two kinds of users: external users who schedule meetings, and myself who reviews them,
+and get notified.
+** External user UI, aka "Guest UI"
+- Choose a date and a time.
+- Choose the way to contact.
+- Add details.
+- Schedule a meeting, and get an email confirmation.
+- Have a unique link to edit or cancel the meeting.
+- No need to authenticate, have a profile, etc.
+** My UI
+- View my schedule.
+  - Add a meeting myself.
+  - Edit / reschedule a meeting.
+  - Cancel a meeting.
+  - Lock a range of time in the calendar.
+  - Unlock a range of time in the calendar.
+- View and edit the types of meetings:
+  - Desired length.
+  - Desired list of input fields (all text).
+  - Color.
+- No need to identify myself. This is an expressly single-user version now.
+* Implementation
+Three pieces live in a monorepo.
+** Frontend
+Preact / Typescript, because I need to showcase React skills.
+At least it's small. (Fully static, server-generated HTML might suffice.)
+** API backend
+Manages the actual scheduling data.
+- Python, because I want to showcase my Python skills.
+- FastCGI, because it's widespread. (Could go with Litestar instead.)
+- SQLAlchemy for DB access; only core, no ORM.
+- SQLite for database. Should be fine for the low-load, low-concurrency case.
+- API for both frontends, and for the sync backend.
+** Calendar sync backend
+Golang, to experiment with it. It's the simplest part by far.
+- Uses Google Calendar API to pull free / busy data from my calendars.
+- Uses the backend API to update the local view of busy/free data.
+- Runs via cron.
+** Deployment
+- The API backend is put into a container.
+- The API is fronted by an existing web server, which handles TLS.
+- The frontend is served off the same web server as static files.
+- The sync backend is a single executable, can be deployed as is.
+- The DB is a single file on the disk.
+- Maybe later:
+  - Everything in one container, trivial deployment.
+  - a Terraform / Ansible / Helm chart, some time later.
