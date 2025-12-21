@@ -1,0 +1,10 @@
+[project]
+name = "api"
+version = "0.1.0"
+description = "API layer for the grab-a-time app."
+readme = "README.org"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.125.0",
+    "sqlalchemy>=2.0.45",
+]
