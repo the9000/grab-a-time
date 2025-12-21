@@ -1,0 +1,16 @@
+{
+  "name": "grab-a-time-web",
+  "version": "1.0.0",
+  "description": "Web frontend fro the grab-a-time app.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL 3.0",
+  "packageManager": "pnpm@10.17.1",
+  "dependencies": {
+    "preact": "^10.28.0"
+  }
+}
