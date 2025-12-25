@@ -13,8 +13,10 @@ import models as M
 
 app = FastAPI(debug=(os.getenvb(b"GRAB_A_TIME_DEBUG") == b"1"))
 
+
+
 @app.get("/my/meeting/")
-def meeting_list() -> M.APIResponse[list[M.MeetingInfo]]:
+def meeting_list() -> M.APIResponseOK[list[M.MeetingInfo]] | M.APIResponseError:
     return M.api_success([M.MeetingInfo(
         guest_name="Joe Random",
         guest_email="joe@ran.dom",

@@ -9,21 +9,19 @@ import pydantic as P
 # Generic API response model.
 PayloadT = T.TypeVar("PayloadT")
 
-class APIResponseSuccess(P.BaseModel, T.Generic[PayloadT]):
-    status: T.Literal["ok"]
+class APIResponseOK(P.BaseModel, T.Generic[PayloadT]):
+    status: T.Literal["OK"]
     data: PayloadT
 
-class APIResponseError(P.BaseModel):
+class APIResponseError(P.BaseModel, T.Generic[PayloadT]):
     status: T.Literal["error"]
     message: str
 
-APIResponse = T.Annotated[
-    APIResponseSuccess[PayloadT] | APIResponseError,
-    P.Field(discriminator="status")
-]
+# NOTE: Sadly, we can't have a nice APIResponse = APIResponseOK | APIResponseError,
+# because it loses the generic type parameter.
 
-def api_success(payload: PayloadT) -> APIResponseSuccess[PayloadT]:
-    return APIResponseSuccess[PayloadT](status="ok", data=payload)
+def api_success(payload: PayloadT) -> APIResponseOK[PayloadT]:
+    return APIResponseOK[PayloadT](status="OK", data=payload)
 
 def api_error(message: str):
     return APIResponseError(status="error", message=message)
