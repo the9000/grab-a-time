@@ -6,8 +6,10 @@ API endpoints for grab-a-time.
 
 import os
 
+import arrow
 from fastapi import FastAPI
 import sqlalchemy as SA
+import sqlalchemy.exc as SAExc
 
 import database as D
 import models as M
@@ -46,25 +48,41 @@ def meeting_list(): # -> M.APIResponseOK[list[M.MeetingInfo]] | M.APIResponseErr
 
 @app.post("/my/meeting/")
 def meeting_create(data: M.MeetingInfo_Core):
-    pass
+    pass # with D.transaction() as tx:
+
 
 
 @app.get("/my/meeting-type/")
 def meeting_type_list():
-    with D.ro_transaction() as tx:
-        data = tx.connection.execute(
-            SA.select(D.MeetingType).order_by(D.MeetingType.c.name)
-        ).all()
-        return [
-            M.MeetingType(
-                id=x.id,
-                name=x.name,
-                duration=x.duration,
-                connection_type=x.connection_type,
-                last_updated=x.last_updated)
-            for x in data
-        ]
+       with D.ro_transaction() as tx:
+           data = tx.connection.execute(
+               SA.select(D.MeetingType).order_by(D.MeetingType.c.name)
+           ).all()
+           return M.api_success( [
+               M.MeetingType(
+                   id=x.id,
+                   name=x.name,
+                   duration=x.duration,
+                   connection_type=x.connection_type,
+                   last_updated=x.last_updated)
+               for x in data
+           ])
 
-
+@app.post("/my/meeting-type/")
+def meeting_type_create(data: M.MeetingType_Core):
+    try:
+       with D.transaction() as tx:
+           result = tx.connection.execute(
+               D.MeetingType.insert().values(
+                   name=data.name,
+                   duration=data.duration,
+                   connection_type=data.connection_type,
+                   last_updated=arrow.now().datetime,
+               )
+               .returning(D.MeetingType.c.id)
+           )
+           return M.api_success(M.MeetingInfo_New(meeting_type_id=result.all()[0][0]))
+    except SAExc.SQLAlchemyError as ex:
+        return M.api_error(f"{ex._message()}")
 
 # No main, intended for `fastapi run`.
