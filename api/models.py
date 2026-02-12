@@ -66,21 +66,52 @@ Email = str
 Minutes = int
 DateTimeStr = str  # We pass date/tme in ISO 8601 format.
 
+MeetingTypeID = int
+
+ConnectionType = T.Literal["Phone", "Zoom", "Google Meet", "In person"]
+
 DateTimeParsed = T.Annotated[  # Actually a datetime object.
-    DateTimeStr,
-    P.AfterValidator(datetime.datetime.fromisoformat)
+    DateTimeStr, P.AfterValidator(datetime.datetime.fromisoformat)
 ]
 
-def new_meeting_id() -> MeetingID:
-    return int_to_b64s(random.randint(100, 1 << 63))
 
-class MeetingInfo(P.BaseModel):
-    "Describes a scheduled meeting."
-    id: T.Annotated[MeetingID, P.AfterValidator(looks_valid_b64s)]
+# Python's way to combine record parts is mixins and inheritance :(
+# All mixins are also Pydantic models, even though they don't make sense as
+# standalone models.
+
+
+class MeetingType_Core(P.BaseModel):
+    model_config = P.ConfigDict(from_attributes=True)
+    name: str
+    duration: Minutes
+    connection_type: ConnectionType
+
+
+class MeetingType(MeetingType_Core):
+    id: MeetingTypeID
+    last_updated: DateTimeParsed
+
+
+class MeetingInfo_Core(P.BaseModel):
+    "Data sufficient to create a meeting."
+    model_config = P.ConfigDict(from_attributes=True)
     guest_name: str
     guest_email: Email
     note: str
-    start_time: DateTimeParsed  #
-    duration: Minutes
+    start_time: DateTimeParsed
+
+
+class MeetingInfo_New(P.BaseModel):
+    meeting_type_id: MeetingTypeID
+
+
+def new_meeting_id() -> MeetingID:
+    """Returns a new random meeting ID."""
+    return int_to_b64s(random.randint(100, 1 << 63))
+
+
+class MeetingInfo(MeetingInfo_Core):
+    "Describes a scheduled meeting."
+    id: T.Annotated[MeetingID, P.AfterValidator(looks_valid_b64s)]
+    meeting_type: MeetingType
     last_updated: DateTimeParsed
-    # TODO: Meeting type. ID or flattened data?
