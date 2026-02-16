@@ -9,3 +9,7 @@ dependencies = [
     "fastapi[standard]>=0.125.0",
     "sqlalchemy>=2.0.45",
 ]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
