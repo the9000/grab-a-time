@@ -9,6 +9,7 @@ import re
 import typing as T
 
 import pydantic as P
+import sqlalchemy.exc as SAExc
 
 # Generic API response model.
 PayloadT = T.TypeVar("PayloadT")
@@ -19,7 +20,7 @@ class APIResponseOK(P.BaseModel, T.Generic[PayloadT]):
     data: PayloadT
 
 
-class APIResponseError(P.BaseModel, T.Generic[PayloadT]):
+class APIResponseError(P.BaseModel):
     status: T.Literal["error"]
     message: str
 
@@ -28,12 +29,29 @@ class APIResponseError(P.BaseModel, T.Generic[PayloadT]):
 # because it loses the generic type parameter.
 
 
+
 def api_success(payload: PayloadT) -> APIResponseOK[PayloadT]:
     return APIResponseOK[PayloadT](status="OK", data=payload)
 
 
 def api_error(message: str):
     return APIResponseError(status="error", message=message)
+
+
+# NOTE: We're using this instead of a decorator, because:
+# * Having a single decorator return the right signature is tricky.
+# * Even then Pydantic is unhappy with the signature, says parameters must be Models.
+# * ParamSpec has no way to give a bound to parameters.
+# * Workarounds that typecheck in Pyrignat )and_ Pydantic lead to code duplication.
+def wrap[R](func: T.Callable[[], R]) -> APIResponseOK[R] | APIResponseError:
+    """Calls `func`, wraps the result in OK response, errors in Error response."""
+    try:
+        return api_success(func())
+    except SAExc.SQLAlchemyError as ex:
+        # NOTE: This accesses a private fields to prevent sending too many details in the response.
+        return api_error(f"{ex._message()}")
+    except Exception as ex:
+        return api_error(str(ex))
 
 
 def b64s_to_int(b64s: str) -> int:
