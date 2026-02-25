@@ -25,15 +25,6 @@ class APIResponseError(P.BaseModel):
     message: str
 
 
-# NOTE: Sadly, we can't have a nice APIResponse = APIResponseOK | APIResponseError,
-# because it loses the generic type parameter.
-
-
-
-def api_success(payload: PayloadT) -> APIResponseOK[PayloadT]:
-    return APIResponseOK[PayloadT](status="OK", data=payload)
-
-
 def api_error(message: str):
     return APIResponseError(status="error", message=message)
 
@@ -46,7 +37,7 @@ def api_error(message: str):
 def wrap[R](func: T.Callable[[], R]) -> APIResponseOK[R] | APIResponseError:
     """Calls `func`, wraps the result in OK response, errors in Error response."""
     try:
-        return api_success(func())
+        return APIResponseOK[R](status="OK", data=func())
     except SAExc.SQLAlchemyError as ex:
         # NOTE: This accesses a private fields to prevent sending too many details in the response.
         return api_error(f"{ex._message()}")
