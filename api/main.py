@@ -27,8 +27,7 @@ app = FastAPI(
     title="Grab-A-Time",
 )
 
-
-
+# All routing in one place.
 app.get("/my/meeting/")(actions.meeting.get_list)
 app.post("/my/meeting/")(actions.meeting.create)
 
