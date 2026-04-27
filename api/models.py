@@ -40,7 +40,7 @@ def wrap[R](func: T.Callable[[], R]) -> APIResponseOK[R] | APIResponseError:
         return APIResponseOK[R](status="OK", data=func())
     except SAExc.SQLAlchemyError as ex:
         # NOTE: This accesses a private fields to prevent sending too many details in the response.
-        return api_error(f"{ex._message()}")
+        return api_error(str(ex._message()))
     except Exception as ex:
         return api_error(str(ex))
 
@@ -87,6 +87,15 @@ DateTimeParsed = T.Annotated[  # Actually a datetime object.
 # Python's way to combine record parts is mixins and inheritance :(
 # All mixins are also Pydantic models, even though they don't make sense as
 # standalone models.
+
+class VoidResult(P.BaseModel):
+    """Model with no attributes. Used for responses to actions like updates and  deletions."""
+    pass
+
+
+class IDResult[IDT](P.BaseModel):
+    """A response that carries an ID of type `IDT`. Also used as a mixing."""
+    id: IDT
 
 
 class MeetingType_Core(P.BaseModel):
